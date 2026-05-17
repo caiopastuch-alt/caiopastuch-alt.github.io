@@ -1,0 +1,31 @@
+/* Google Calendar */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.resumo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;align-items:start}
+.resumo-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;transition:border-color var(--tr),transform var(--tr)}
+.resumo-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.resumo-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.resumo-card-title{font-size:14px;font-weight:600}.resumo-card-count{font-size:11px;color:var(--text3)}
+.resumo-stat{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+.resumo-stat:last-child{border-bottom:none}.resumo-stat-label{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.resumo-stat-val{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)}
+.resumo-stat-val.green{color:var(--green)}.resumo-stat-val.blue{color:var(--accent)}.resumo-stat-val.amber{color:var(--amber)}.resumo-stat-val.purple{color:var(--purple)}
+/* Mini status dot for resumo */
+.resumo-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* 4-layer value bar inside resumo card */
+.resumo-val-bar{position:relative;height:4px;border-radius:2px;background:var(--border2);margin-top:6px;overflow:hidden}
+.resumo-val-layer{position:absolute;left:0;top:0;height:100%;border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;color:var(--text2)}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 16px;font-size:13px;color:var(--text);z-index:999;display:none;animation:fadeIn .15s ease;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.toast.show{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* Setup banner */
+.setup-banner{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.setup-banner-icon{width:36px;height:36px;border-radius:9px;background:var(--amber-bg);border:1px solid var(--amber-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--amber)}
+.setup-banner-icon svg{width:18px;height:18px}
+.setup-banner h4{font-size:13px;font-weight:600;color:var(--amber);margin-bottom:2px}
+.setup-banner p{font-size:12px;color:var(--text2)}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.sidebar{width:58px}.logo h1,.logo p,.nav-item span,.sidebar-footer{display:none}.logo-mark{margin:0 auto}.logo{padding:0 13px 22px}.nav{padding:0 5px}.nav-item{justify-content:center}.main{margin-left:58px;padding:18px 12px}.kpis{grid-template-columns:repeat(2,1fr)}}
+

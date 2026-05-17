@@ -1,0 +1,355 @@
+<!-- ── Finanças ── -->
+<div class="page" id="page-financas">
+  <!-- Internal sub-navigation bar -->
+  <div style="display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:6px;font-family:var(--font)">
+    <button class="fin-tab active" onclick="finGoTo('gastos',this)">Despesas</button>
+    <button class="fin-tab" onclick="finGoTo('receitas',this)">Receitas</button>
+    <button class="fin-tab" onclick="finGoTo('reserva',this)">Reserva</button>
+    <button class="fin-tab" onclick="finGoTo('impostos',this)">Impostos SN</button>
+    <button class="fin-tab" onclick="finGoTo('anual',this)">Estatísticas</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-ghost btn-sm" onclick="finLoadSupabase()" style="font-family:var(--font)">↺ Sincronizar</button>
+  </div>
+
+  <!-- ANUAL -->
+  <div class="fin-page" id="fin-page-anual">
+    <div class="topbar">
+      <div class="topbar-left"><h2 style="font-family:var(--font)">Análise estatística</h2><p style="font-family:var(--font)">Todos os anos · receitas, despesas e padrões</p></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="finRenderAnual()" style="font-family:var(--font)">↺ Atualizar</button>
+      </div>
+    </div>
+    <!-- KPIs globais -->
+    <div class="kpis" style="grid-template-columns:repeat(5,1fr);margin-bottom:20px">
+      <div class="kpi"><div class="kpi-top"><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg></div><div class="kpi-label" style="font-family:var(--font)">Receita total</div></div><div class="kpi-val green" id="fin-an-inc" style="font-family:var(--mono)">R$ 0</div><div class="kpi-sub" id="fin-an-inc-sub" style="font-family:var(--font)">—</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-icon red"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2z"/></svg></div><div class="kpi-label" style="font-family:var(--font)">Despesas total</div></div><div class="kpi-val red" id="fin-an-exp" style="font-family:var(--mono)">R$ 0</div><div class="kpi-sub" id="fin-an-exp-sub" style="font-family:var(--font)">—</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div><div class="kpi-label" style="font-family:var(--font)">Saldo líquido</div></div><div class="kpi-val" id="fin-an-bal" style="font-family:var(--mono)">R$ 0</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div><div class="kpi-label" style="font-family:var(--font)">Média mensal receita</div></div><div class="kpi-val amber" id="fin-an-avg-inc" style="font-family:var(--mono)">R$ 0</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-icon purple"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div><div class="kpi-label" style="font-family:var(--font)">Média mensal despesa</div></div><div class="kpi-val" id="fin-an-avg-exp" style="font-family:var(--mono)">R$ 0</div></div>
+    </div>
+    <!-- Gráfico -->
+    <div class="chart-wrap" style="margin-bottom:20px"><div class="chart-title" style="font-family:var(--font)">Receitas vs Despesas — todos os meses</div><div class="chart-area" style="height:220px"><canvas id="fin-c-anual"></canvas></div></div>
+    <!-- Destaque: melhor e pior mês + categoria campeã -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:var(--radius-lg);padding:16px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--green);margin-bottom:10px;font-family:var(--font)">🏆 Melhor mês</div>
+        <div id="fin-an-best" style="font-family:var(--font)">—</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:var(--radius-lg);padding:16px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--red);margin-bottom:10px;font-family:var(--font)">📉 Pior mês</div>
+        <div id="fin-an-worst" style="font-family:var(--font)">—</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--amber);border-radius:var(--radius-lg);padding:16px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--amber);margin-bottom:10px;font-family:var(--font)">💸 Maior categoria de gasto</div>
+        <div id="fin-an-cat" style="font-family:var(--font)">—</div>
+      </div>
+    </div>
+    <!-- Tabela mensal detalhada -->
+    <div class="resumo-tbl-wrap"><div class="table-scroll"><table><thead><tr><th style="font-family:var(--font)">Mês</th><th style="font-family:var(--font)">Receita</th><th style="font-family:var(--font)">Despesas</th><th style="font-family:var(--font)">Saldo</th><th style="font-family:var(--font)">Acumulado</th><th style="font-family:var(--font)">Taxa gasto</th></tr></thead><tbody id="fin-an-table"></tbody></table></div></div>
+  </div>
+
+  <!-- RECEITAS -->
+  <div class="fin-page" id="fin-page-receitas">
+    <div class="topbar">
+      <div class="topbar-left"><h2 style="font-family:var(--font)">Receitas</h2><p style="font-family:var(--font)">Plantões + outras receitas</p></div>
+      <div class="topbar-actions">
+        <select class="filter-select" id="fin-rec-ano" onchange="finRenderReceitas()"><option value="2026">2026</option><option value="2025">2025</option></select>
+        <button class="btn btn-ghost btn-sm" onclick="finOpenRecModal()" style="font-family:var(--font)">+ Receita</button>
+      </div>
+    </div>
+    <!-- KPI summary -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--green);border-radius:var(--radius-lg);padding:14px 16px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--green);margin-bottom:6px;font-family:var(--font)">✓ Recebido (plantões)</div>
+        <div class="kpi-val green" id="fin-rec-anual-pago" style="font-family:var(--mono)">—</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--amber);border-radius:var(--radius-lg);padding:14px 16px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--amber);margin-bottom:6px;font-family:var(--font)">⏳ Pendente</div>
+        <div class="kpi-val amber" id="fin-rec-anual-pend" style="font-family:var(--mono)">—</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--radius-lg);padding:14px 16px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);margin-bottom:6px;font-family:var(--font)">+ Outras receitas</div>
+        <div class="kpi-val" id="fin-rec-anual-outras" style="font-family:var(--mono);color:var(--accent)">—</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:6px;font-family:var(--font)">Total geral</div>
+        <div class="kpi-val" id="fin-rec-anual-total" style="font-family:var(--mono)">—</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:6px;font-family:var(--font)">Plantões</div>
+        <div class="kpi-val" id="fin-rec-anual-count" style="font-family:var(--mono)">—</div>
+      </div>
+    </div>
+    <div id="fin-rec-content"><div class="rec-loader"><div class="spinner"></div>Carregando dados…</div></div>
+  </div>
+
+  <!-- Modal: nova receita avulsa -->
+  <div class="modal-overlay" id="fin-modal-rec" onclick="if(event.target===this)finCloseModal('fin-modal-rec')">
+    <div class="modal" style="max-width:440px">
+      <div class="modal-header">
+        <div><h3 id="fin-rec-modal-title" style="font-family:var(--font)">Nova receita</h3></div>
+        <button class="modal-close" onclick="finCloseModal('fin-modal-rec')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+      </div>
+      <div class="form-grid full"><div class="field"><label>Descrição *</label><input type="text" id="fin-rec-m-desc" placeholder="Ex: Consultório, Aula, Dividendo…"></div></div>
+      <div class="form-grid">
+        <div class="field"><label>Valor (R$) *</label><input type="number" id="fin-rec-m-val" step="0.01" min="0" placeholder="0,00"></div>
+        <div class="field"><label>Data *</label><input type="date" id="fin-rec-m-date"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Tipo / Origem</label>
+          <select id="fin-rec-m-tipo">
+            <option value="Consultório">Consultório</option>
+            <option value="Aula/Palestra">Aula/Palestra</option>
+            <option value="Investimento">Investimento</option>
+            <option value="Aluguel">Aluguel</option>
+            <option value="Freelance">Freelance</option>
+            <option value="Bônus">Bônus</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div class="field"><label>Observação</label><input type="text" id="fin-rec-m-obs" placeholder="Opcional…"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost btn-sm" id="fin-rec-del-btn" style="color:var(--red);display:none" onclick="finDeleteRec()">🗑 Remover</button>
+        <button class="btn btn-ghost" onclick="finCloseModal('fin-modal-rec')">Cancelar</button>
+        <button class="btn btn-primary" onclick="finSaveRec()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESPESAS (merged: Fixos + Lançamentos) -->
+  <div class="fin-page" id="fin-page-gastos">
+    <div class="topbar">
+      <div class="topbar-left"><h2 style="font-family:var(--font)">Despesas</h2><p style="font-family:var(--font)">Fixos · Semifixos · Variáveis · Lançamentos</p></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="finOpenGfModal('fixo')">+ Fixo</button>
+        <button class="btn btn-ghost btn-sm" onclick="finOpenGfModal('semifixo')">+ Semifixo</button>
+        <button class="btn btn-ghost btn-sm" onclick="finOpenGfModal('variavel')">+ Variável</button>
+        <button class="btn btn-ghost btn-sm" onclick="finOpenNewTx()">+ Lançamento</button>
+      </div>
+    </div>
+    <!-- Sort bar for fixos -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="gf-summary" id="fin-gf-summary" style="flex:1;margin-bottom:0"></div>
+      <div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:4px 10px;font-size:12px;color:var(--text2);font-family:var(--font)">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+        Ordenar:
+        <select id="fin-gf-sort" onchange="finRenderGastos()" style="background:var(--bg3);border:none;color:var(--text);font-family:var(--font);font-size:12px;cursor:pointer;outline:none">
+          <option value="nome">Nome A–Z</option>
+          <option value="valor-desc">Maior valor</option>
+          <option value="valor-asc">Menor valor</option>
+          <option value="venc">Vencimento</option>
+        </select>
+      </div>
+    </div>
+    <!-- Fixos/Semifixos/Variáveis — stacked individually -->
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px">
+      <!-- FIXOS -->
+      <div style="background:var(--bg2);border:1px solid rgba(242,95,92,.3);border-left:3px solid var(--red);border-radius:var(--radius-lg);overflow:hidden">
+        <div onclick="toggleGfSection('fixo')" style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:10px;padding:12px 16px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
+          <span style="font-size:13px;font-weight:700;font-family:var(--font);flex:1;color:var(--text)">Fixos</span>
+          <span class="pill pill-red" id="fin-gf-fixo-total" style="font-family:var(--mono)">R$ 0</span>
+          <svg id="gf-chev-fixo" class="month-chevron" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div id="fin-gf-fixo-list" style="display:none"></div>
+        <div id="fin-gf-fixo-add" style="display:none;padding:4px 8px 10px"><button class="gf-add-btn" onclick="finOpenGfModal('fixo')">+ Adicionar fixo</button></div>
+      </div>
+      <!-- SEMIFIXOS -->
+      <div style="background:var(--bg2);border:1px solid rgba(245,166,35,.3);border-left:3px solid var(--amber);border-radius:var(--radius-lg);overflow:hidden">
+        <div onclick="toggleGfSection('semifixo')" style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:10px;padding:12px 16px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0"></div>
+          <span style="font-size:13px;font-weight:700;font-family:var(--font);flex:1;color:var(--text)">Semifixos</span>
+          <span class="pill pill-amber" id="fin-gf-semi-total" style="font-family:var(--mono)">R$ 0</span>
+          <svg id="gf-chev-semifixo" class="month-chevron" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div id="fin-gf-semi-list" style="display:none"></div>
+        <div id="fin-gf-semi-add" style="display:none;padding:4px 8px 10px"><button class="gf-add-btn" onclick="finOpenGfModal('semifixo')">+ Adicionar semifixo</button></div>
+      </div>
+      <!-- VARIÁVEIS -->
+      <div style="background:var(--bg2);border:1px solid rgba(155,103,255,.3);border-left:3px solid var(--purple);border-radius:var(--radius-lg);overflow:hidden">
+        <div onclick="toggleGfSection('variavel')" style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:10px;padding:12px 16px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--purple);flex-shrink:0"></div>
+          <span style="font-size:13px;font-weight:700;font-family:var(--font);flex:1;color:var(--text)">Variáveis</span>
+          <span class="pill pill-purple" id="fin-gf-var-total" style="font-family:var(--mono)">R$ 0</span>
+          <svg id="gf-chev-variavel" class="month-chevron" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <div id="fin-gf-var-list" style="display:none"></div>
+        <div id="fin-gf-var-add" style="display:none;padding:4px 8px 10px"><button class="gf-add-btn" onclick="finOpenGfModal('variavel')">+ Adicionar variável</button></div>
+      </div>
+    </div>
+    <!-- Separator between fixos and lançamentos -->
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0 14px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);font-family:var(--font);white-space:nowrap">📋 Lançamentos registrados</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <select class="filter-select" id="fin-ed-month" onchange="finRenderGastos()" style="font-size:11px;padding:2px 8px"><option value="">Todos os meses</option></select>
+      <button class="btn btn-ghost btn-sm" onclick="finOpenCatsModal()" style="font-family:var(--font);font-size:11px;margin-left:auto">⚙ Categorias</button>
+    </div>
+    <div class="edit-hint"><svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg>Clique em qualquer célula para editar inline</div>
+    <div id="fin-ed-list"></div>
+  </div>
+
+  <!-- RESERVA -->
+  <div class="fin-page" id="fin-page-reserva">
+    <div class="topbar">
+      <div class="topbar-left"><h2>Minha reserva</h2><p>Progresso rumo à meta mensal</p></div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="finOpenModal('fin-modal-meta')">✏ Meta</button>
+        <button class="btn btn-ghost btn-sm" onclick="finOpenModal('fin-modal-saldo')">🏦 Saldo</button>
+      </div>
+    </div>
+    <div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+      <div class="kpi"><div class="kpi-top"><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg></div><div class="kpi-label">Meta mensal</div></div><div class="kpi-val amber" id="fin-rv-meta">R$ 10.000</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 10v7h3v-7H4zm6 0v7h3v-7h-3zM2 22h19v-3H2v3zm14-12v7h3v-7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg></div><div class="kpi-label">Saldo real</div></div><div class="kpi-val green" id="fin-rv-saldo">R$ 0</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div><div class="kpi-label">Calculado</div></div><div class="kpi-val" id="fin-rv-calc">R$ 0</div></div>
+    </div>
+    <div id="fin-rv-months"></div>
+  </div>
+
+  <!-- ── Impostos Simples Nacional ── -->
+  <div class="fin-page" id="fin-page-impostos">
+    <div class="topbar">
+      <div class="topbar-left"><h2 style="font-family:var(--font)">Impostos — Simples Nacional</h2><p style="font-family:var(--font)">Cálculo de DAS, DARF e otimização tributária</p></div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary btn-sm" onclick="impCalc()" style="font-family:var(--font)">🧮 Calcular</button>
+        <button class="btn btn-ghost btn-sm" onclick="impCalcOtimo()" style="font-family:var(--font)">💡 Otimizar</button>
+      </div>
+    </div>
+    <div id="imp-content"></div>
+  </div>
+</div>
+
+<!-- ── Modais Finanças ── -->
+<div class="modal-overlay" id="fin-modal-add" onclick="if(event.target===this)finCloseModal('fin-modal-add')">
+<div class="modal"><div class="modal-header"><div><h3>Nova despesa</h3></div><button class="modal-close" onclick="finCloseModal('fin-modal-add')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
+<div class="form-grid"><div class="field"><label>Descrição *</label><input id="fin-f-desc" placeholder="Ex: Jantar, uber…"></div><div class="field"><label>Valor (R$) *</label><input id="fin-f-amt" type="number" step="0.01" min="0"></div></div>
+<div class="form-grid"><div class="field"><label>Data *</label><input id="fin-f-date" type="date"></div><div class="field"><label>Categoria</label><select id="fin-f-cat"></select></div></div>
+<div class="form-grid full"><div class="field"><label>Observação</label><input id="fin-f-note" placeholder="Parcelamento, detalhes…"></div></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="finCloseModal('fin-modal-add')">Cancelar</button><button class="btn btn-primary" onclick="finSaveTx()">Salvar</button></div>
+</div></div>
+
+<div class="modal-overlay" id="fin-modal-fatura" onclick="if(event.target===this)finCloseModal('fin-modal-fatura')">
+<div class="modal" style="max-width:420px"><div class="modal-header"><div><h3>Importar fatura</h3></div><button class="modal-close" onclick="finCloseModal('fin-modal-fatura')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
+<div class="form-grid"><div class="field"><label>Mês</label><input id="fin-fat-m" type="number" min="1" max="12"></div><div class="field"><label>Ano</label><input id="fin-fat-y" type="number" value="2026" min="2020"></div></div>
+<div class="form-grid full"><div class="field"><label>Total da fatura (R$) *</label><input id="fin-fat-v" type="number" step="0.01" min="0"></div></div>
+<div class="form-grid full"><div class="field"><label>Observação</label><input id="fin-fat-n" placeholder="Ex: inclui passagem aérea"></div></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="finCloseModal('fin-modal-fatura')">Cancelar</button><button class="btn btn-primary" onclick="finImportFatura()">Importar</button></div>
+</div></div>
+
+<div class="modal-overlay" id="fin-modal-gf" onclick="if(event.target===this)finCloseModal('fin-modal-gf')">
+<div class="modal" style="max-width:440px"><div class="modal-header"><div><h3 id="fin-gf-m-title">Novo gasto</h3></div><button class="modal-close" onclick="finCloseModal('fin-modal-gf')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
+<input type="hidden" id="fin-gf-m-tipo"><input type="hidden" id="fin-gf-m-id">
+<div class="form-grid full"><div class="field"><label>Nome *</label><input id="fin-gf-m-name" placeholder="Ex: Netflix, Combustível…"></div></div>
+<div class="form-grid"><div class="field"><label>Valor estimado (R$) *</label><input id="fin-gf-m-val" type="number" step="0.01" min="0"></div><div class="field"><label>Vencimento (dia do mês)</label><input id="fin-gf-m-venc" type="number" min="1" max="31" placeholder="Ex: 15"></div></div>
+<div class="form-grid"><div class="field"><label>Categoria</label><select id="fin-gf-m-cat"><option>Moradia</option><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Educação</option><option>Assinaturas</option><option>Lazer</option><option>Vestuário</option><option>Outros</option></select></div></div>
+<div class="form-grid full"><div class="field"><label>Observação</label><input id="fin-gf-m-note" placeholder="Vencimento, parcelas…"></div></div>
+<div class="modal-actions"><button class="btn btn-ghost" id="fin-gf-del-btn" style="color:var(--red);display:none" onclick="finDeleteGfFromModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Remover</button><button class="btn btn-ghost" onclick="finCloseModal('fin-modal-gf')">Cancelar</button><button class="btn btn-primary" onclick="finSaveGf()">Salvar</button></div>
+</div></div>
+
+<div class="modal-overlay" id="fin-modal-meta" onclick="if(event.target===this)finCloseModal('fin-modal-meta')">
+<div class="modal" style="max-width:380px"><div class="modal-header"><div><h3>Meta de reserva</h3></div><button class="modal-close" onclick="finCloseModal('fin-modal-meta')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
+<div class="form-grid full"><div class="field"><label>Valor mensal a reservar (R$)</label><input id="fin-meta-v" type="number" step="500" min="0"></div></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="finCloseModal('fin-modal-meta')">Cancelar</button><button class="btn btn-primary" onclick="finSaveMeta()">Salvar</button></div>
+</div></div>
+
+<div class="modal-overlay" id="fin-modal-saldo" onclick="if(event.target===this)finCloseModal('fin-modal-saldo')">
+<div class="modal" style="max-width:380px"><div class="modal-header"><div><h3>Saldo da reserva</h3></div><button class="modal-close" onclick="finCloseModal('fin-modal-saldo')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
+<div class="form-grid full"><div class="field"><label>Saldo atual (R$)</label><input id="fin-saldo-v" type="number" step="100" min="0"></div></div>
+<div class="modal-actions"><button class="btn btn-ghost" onclick="finCloseModal('fin-modal-saldo')">Cancelar</button><button class="btn btn-primary" onclick="finSaveSaldo()">Salvar</button></div>
+</div></div>
+<!-- ── Treino Atual ── -->
+<div class="page" id="page-treino-atual">
+  <div class="topbar">
+    <div class="topbar-left"><h2 style="font-family:var(--font)">Treino Atual</h2><p style="font-family:var(--font)">Registro e acompanhamento da sessão</p></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="treinoNovaFicha()" style="font-family:var(--font)">+ Nova ficha</button>
+      <button class="btn btn-primary" onclick="treinoIniciarSessao()" style="font-family:var(--font)">▶ Iniciar treino</button>
+    </div>
+  </div>
+  <div id="treino-atual-content"></div>
+</div>
+
+<!-- ── Exercícios ── -->
+<div class="page" id="page-treino-exercicios">
+  <div class="topbar">
+    <div class="topbar-left"><h2 style="font-family:var(--font)">Exercícios</h2><p style="font-family:var(--font)">Biblioteca completa · carga, séries, repetições</p></div>
+    <div class="topbar-actions">
+      <div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:4px 10px">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px;color:var(--text3)"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input id="ex-search" type="text" placeholder="Buscar exercício…" oninput="renderExercicios()" style="background:transparent;border:none;outline:none;font-family:var(--font);font-size:12px;color:var(--text);width:160px">
+      </div>
+      <select id="ex-grupo-filter" onchange="renderExercicios()" class="filter-select" style="font-family:var(--font)">
+        <option value="">Todos os grupos</option>
+        <option value="Bíceps">Bíceps</option>
+        <option value="Tríceps">Tríceps</option>
+        <option value="Costas">Costas</option>
+        <option value="Ombros">Ombros</option>
+        <option value="Peito">Peito</option>
+        <option value="Pernas">Pernas</option>
+        <option value="Abdome">Abdome</option>
+        <option value="Panturrilha">Panturrilha</option>
+        <option value="Trapézio">Trapézio</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="openExercicioModal()" style="font-family:var(--font)">+ Adicionar</button>
+    </div>
+  </div>
+  <div id="exercicios-grid"></div>
+</div>
+
+<!-- Modal: Exercício -->
+<div class="modal-overlay" id="exercicio-overlay" onclick="if(event.target===this)closeExercicioModal()">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div><h3 id="ex-modal-title" style="font-family:var(--font)">Novo exercício</h3></div>
+      <button class="modal-close" onclick="closeExercicioModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div class="form-grid full"><div class="field"><label>Nome</label><input type="text" id="ex-nome" placeholder="Ex: Rosca Direta…"></div></div>
+    <div class="form-grid">
+      <div class="field"><label>Grupo muscular</label>
+        <select id="ex-grupo">
+          <option>Bíceps</option><option>Tríceps</option><option>Costas</option>
+          <option>Ombros</option><option>Peito</option><option>Pernas</option>
+          <option>Abdome</option><option>Panturrilha</option><option>Trapézio</option>
+        </select>
+      </div>
+      <div class="field"><label>Carga (kg)</label><input type="number" id="ex-carga" step="0.5" min="0" placeholder="0"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Séries</label><input type="number" id="ex-series" min="1" value="3"></div>
+      <div class="field"><label>Repetições</label><input type="text" id="ex-reps" placeholder="Ex: 10-12 ou 15"></div>
+    </div>
+    <div class="form-grid full"><div class="field"><label>Observações</label><input type="text" id="ex-obs" placeholder="Técnica, equipamento…"></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="ex-del-btn" style="color:var(--red);display:none" onclick="deleteExercicio()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Remover</button>
+      <button class="btn btn-ghost" onclick="closeExercicioModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveExercicio()">Salvar</button>
+    </div>
+  </div>
+</div><!-- ── Treino Registros ── -->
+<div class="page" id="page-treino-registros">
+  <div class="topbar">
+    <div class="topbar-left"><h2 style="font-family:var(--font)">Registros</h2><p style="font-family:var(--font)">Histórico de sessões de treino</p></div>
+    <div class="topbar-actions"></div>
+  </div>
+  <div id="treino-registros-content"></div>
+</div>
+
+<!-- Modal: Gerenciar categorias de lançamento -->
+<div class="modal-overlay" id="fin-modal-cats" onclick="if(event.target===this)finCloseModal('fin-modal-cats')">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div><h3 style="font-family:var(--font)">Categorias de lançamento</h3></div>
+      <button class="modal-close" onclick="finCloseModal('fin-modal-cats')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div id="fin-cats-list" style="max-height:320px;overflow-y:auto;padding:4px 0 8px"></div>
+    <div style="display:flex;gap:8px;padding:8px 0 4px;border-top:1px solid var(--border)">
+      <input type="text" id="fin-cat-icon" placeholder="Emoji" style="width:52px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:14px;padding:7px 8px;text-align:center">
+      <input type="text" id="fin-cat-name" placeholder="Nome da categoria" style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:13px;padding:7px 10px" onkeydown="if(event.key==='Enter')finAddCat()">
+      <button class="btn btn-primary btn-sm" onclick="finAddCat()" style="font-family:var(--font)">+ Adicionar</button>
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="finCloseModal('fin-modal-cats')" style="font-family:var(--font)">Fechar</button></div>
+  </div>
+</div>

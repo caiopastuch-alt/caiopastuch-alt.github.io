@@ -1,0 +1,38 @@
+<!-- ── PIN Screen ── -->
+<div class="pin-screen hidden" id="pin-screen">
+  <div class="pin-card">
+    <div class="pin-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+    <div class="pin-title">Área de Trabalho</div>
+    <div class="pin-sub" id="pin-sub">Selecione seu perfil</div>
+    <div class="user-grid" id="user-grid"></div>
+    <div class="new-profile-form" id="new-profile-form">
+      <input type="text" id="new-profile-name" placeholder="Seu nome" maxlength="20" autocomplete="off">
+      <div class="new-profile-actions">
+        <button class="np-cancel" onclick="cancelNewProfile()">Cancelar</button>
+        <button class="np-create" onclick="createProfile()">Criar perfil</button>
+      </div>
+    </div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-keypad" id="pin-keypad">
+      <div class="pin-key" onclick="pinKey('1')">1</div>
+      <div class="pin-key" onclick="pinKey('2')">2</div>
+      <div class="pin-key" onclick="pinKey('3')">3</div>
+      <div class="pin-key" onclick="pinKey('4')">4</div>
+      <div class="pin-key" onclick="pinKey('5')">5</div>
+      <div class="pin-key" onclick="pinKey('6')">6</div>
+      <div class="pin-key" onclick="pinKey('7')">7</div>
+      <div class="pin-key" onclick="pinKey('8')">8</div>
+      <div class="pin-key" onclick="pinKey('9')">9</div>
+      <div class="pin-key empty"></div>
+      <div class="pin-key" onclick="pinKey('0')">0</div>
+      <div class="pin-key del" onclick="pinDel()">⌫</div>
+    </div>
+    <div class="pin-msg" id="pin-msg"></div>
+  </div>
+</div>
+

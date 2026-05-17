@@ -1,0 +1,104 @@
+<!-- ── Tarefas ── -->
+<div class="page" id="page-tarefas">
+  <div class="topbar">
+    <div class="topbar-left"><h2>Tarefas</h2><p>Listas por categoria ou projeto</p></div>
+    <div class="topbar-actions">
+      <div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:4px 10px;font-size:12px;color:var(--text2)">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:13px;height:13px;flex-shrink:0"><path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/></svg>
+        Ordenar por:
+        <select id="tarefa-sort" onchange="setTarefaSort(this.value)"
+          style="background:var(--bg3);border:none;color:var(--text);font-family:var(--font);font-size:12px;cursor:pointer;outline:none;border-radius:4px;padding:2px 4px">
+          <option value="prio" style="background:var(--bg3);color:var(--text)">Prioridade</option>
+          <option value="prazo" style="background:var(--bg3);color:var(--text)">Prazo</option>
+          <option value="alfa" style="background:var(--bg3);color:var(--text)">Alfabética</option>
+          <option value="criacao" style="background:var(--bg3);color:var(--text)">Data de criação</option>
+        </select>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openCatModal()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>Categorias
+      </button>
+      <button class="btn btn-primary" onclick="openTarefaModal()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Nova tarefa
+      </button>
+    </div>
+  </div>
+  <div id="tarefas-list"></div>
+</div>
+
+<!-- ── Modal: Evento ── -->
+<div class="modal-overlay" id="evento-overlay" onclick="if(event.target===this)closeEventoModal()">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div><h3 id="evento-modal-title">Novo evento</h3><p>Preencha os dados abaixo</p></div>
+      <button class="modal-close" onclick="closeEventoModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div class="form-grid full"><div class="field"><label>Título</label><input type="text" id="ev-titulo" placeholder="Ex: Consulta cardiologista…"></div></div>
+    <div class="form-grid">
+      <div class="field"><label>Data</label><input type="text" id="ev-data" placeholder="16/03 ou 16 mar"></div>
+      <div class="field"><label>Horário</label><input type="time" id="ev-hora" placeholder="--:--"></div>
+    </div>
+    <div class="form-grid full"><div class="field"><label>Descrição</label><textarea id="ev-desc" rows="3" placeholder="Detalhes, endereço, observações…" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:13px;padding:8px 10px;resize:vertical"></textarea></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="ev-del-btn" style="color:var(--red);display:none" onclick="deleteEvento()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Remover</button>
+      <button class="btn btn-ghost" onclick="closeEventoModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEvento()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Categoria ── -->
+<div class="modal-overlay" id="cat-overlay" onclick="if(event.target===this)closeCatModal()">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div><h3 id="cat-modal-title">Nova categoria</h3></div>
+      <button class="modal-close" onclick="closeCatModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div class="form-grid full"><div class="field"><label>Nome</label><input type="text" id="cat-nome" placeholder="Ex: Pessoal, Trabalho, Estudos…"></div></div>
+    <div class="form-grid">
+      <div class="field"><label>Cor</label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap" id="cat-cor-swatches"></div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:4px"><label>Cor personalizada</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="color" id="cat-cor-custom" value="#4f8ef7" style="width:36px;height:36px;border:none;border-radius:var(--radius);cursor:pointer;background:none" oninput="catSelectColor(this.value)">
+        <span style="font-size:11px;color:var(--text3)">Clique para escolher qualquer cor</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cat-del-btn" style="color:var(--red);display:none" onclick="deleteCategoriaFromModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Remover</button>
+      <button class="btn btn-ghost" onclick="closeCatModal()">Cancelar</button>
+      <button class="btn btn-primary" id="cat-save-btn" onclick="saveCategoria()">Criar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Tarefa ── -->
+<div class="modal-overlay" id="tarefa-overlay" onclick="if(event.target===this)closeTarefaModal()">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div><h3 id="tarefa-modal-title">Nova tarefa</h3></div>
+      <button class="modal-close" onclick="closeTarefaModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div class="form-grid full"><div class="field"><label>Título</label><input type="text" id="tf-titulo" placeholder="O que precisa ser feito…"></div></div>
+    <div class="form-grid">
+      <div class="field"><label>Categoria</label><select id="tf-cat"></select></div>
+      <div class="field"><label>Prioridade</label>
+        <select id="tf-prio">
+          <option value="baixa">Baixa</option>
+          <option value="media" selected>Média</option>
+          <option value="alta">Alta</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Prazo (opcional)</label><input type="text" id="tf-prazo" placeholder="16/03 ou 16 mar"></div>
+    </div>
+    <div class="form-grid full"><div class="field"><label>Notas</label><textarea id="tf-notas" rows="2" placeholder="Detalhes…" style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:13px;padding:8px 10px;resize:vertical"></textarea></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="tf-del-btn" style="color:var(--red);display:none" onclick="deleteTarefa()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Remover</button>
+      <button class="btn btn-ghost" onclick="closeTarefaModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTarefa()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Salvar</button>
+    </div>
+  </div>
+</div>

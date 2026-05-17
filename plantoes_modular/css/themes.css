@@ -1,0 +1,99 @@
+/* ── Themes ─────────────────────────────────────────────────────── */
+body.theme-ocean{
+  --bg:#0d1520;--bg2:#1a2332;--bg3:#1f2c3e;--bg4:#263347;
+  --border:rgba(45,139,139,.15);--border2:rgba(45,139,139,.25);
+  --text:#f1faee;--text2:#a8dadc;--text3:#5a8a8a;
+  --accent:#2d8b8b;--accent-bg:rgba(45,139,139,0.15);--accent-border:rgba(45,139,139,0.35);
+  --green:#2d8b8b;--green-bg:rgba(45,139,139,0.12);--green-border:rgba(45,139,139,0.28);
+  --amber:#a8dadc;--amber-bg:rgba(168,218,220,0.12);--amber-border:rgba(168,218,220,0.3);
+  --purple:#4a7fa5;--purple-bg:rgba(74,127,165,0.12);--purple-border:rgba(74,127,165,0.28);
+  --red:#e07070;--red-bg:rgba(224,112,112,0.10);
+}
+body.theme-forest{
+  --bg:#0e1a0d;--bg2:#162315;--bg3:#1d2e1b;--bg4:#243822;
+  --border:rgba(125,132,113,.15);--border2:rgba(125,132,113,.25);
+  --text:#faf9f6;--text2:#a4ac86;--text3:#5a6348;
+  --accent:#7d8471;--accent-bg:rgba(125,132,113,0.15);--accent-border:rgba(125,132,113,0.35);
+  --green:#6a9b5e;--green-bg:rgba(106,155,94,0.12);--green-border:rgba(106,155,94,0.28);
+  --amber:#a4ac86;--amber-bg:rgba(164,172,134,0.12);--amber-border:rgba(164,172,134,0.3);
+  --purple:#8d9e7a;--purple-bg:rgba(141,158,122,0.12);--purple-border:rgba(141,158,122,0.28);
+  --red:#c97b6b;--red-bg:rgba(201,123,107,0.10);
+}
+body.theme-golden{
+  --bg:#1c1208;--bg2:#2a1c0c;--bg3:#342210;--bg4:#3e2a14;
+  --border:rgba(244,169,0,.15);--border2:rgba(244,169,0,.25);
+  --text:#fdf6e8;--text2:#d4b896;--text3:#8a7258;
+  --accent:#f4a900;--accent-bg:rgba(244,169,0,0.15);--accent-border:rgba(244,169,0,0.35);
+  --green:#8fb87a;--green-bg:rgba(143,184,122,0.12);--green-border:rgba(143,184,122,0.28);
+  --amber:#f4a900;--amber-bg:rgba(244,169,0,0.12);--amber-border:rgba(244,169,0,0.3);
+  --purple:#c1666b;--purple-bg:rgba(193,102,107,0.12);--purple-border:rgba(193,102,107,0.28);
+  --red:#c1666b;--red-bg:rgba(193,102,107,0.10);
+}
+body.theme-galaxy{
+  --bg:#100a1e;--bg2:#18102c;--bg3:#21163a;--bg4:#2b1e3e;
+  --border:rgba(164,144,194,.15);--border2:rgba(164,144,194,.25);
+  --text:#e6e6fa;--text2:#a490c2;--text3:#6b5c8a;
+  --accent:#a490c2;--accent-bg:rgba(164,144,194,0.15);--accent-border:rgba(164,144,194,0.35);
+  --green:#7eb8a4;--green-bg:rgba(126,184,164,0.12);--green-border:rgba(126,184,164,0.28);
+  --amber:#c9a96e;--amber-bg:rgba(201,169,110,0.12);--amber-border:rgba(201,169,110,0.3);
+  --purple:#4a4e8f;--purple-bg:rgba(74,78,143,0.15);--purple-border:rgba(74,78,143,0.35);
+  --red:#c07090;--red-bg:rgba(192,112,144,0.10);
+}
+body.theme-minimal{
+  --bg:#1a1f24;--bg2:#232a30;--bg3:#2c343c;--bg4:#353d47;
+  --border:rgba(112,128,144,.15);--border2:rgba(112,128,144,.25);
+  --text:#f0f4f8;--text2:#a0aab4;--text3:#606a74;
+  --accent:#708090;--accent-bg:rgba(112,128,144,0.15);--accent-border:rgba(112,128,144,0.35);
+  --green:#6a9e80;--green-bg:rgba(106,158,128,0.12);--green-border:rgba(106,158,128,0.28);
+  --amber:#b0a080;--amber-bg:rgba(176,160,128,0.12);--amber-border:rgba(176,160,128,0.3);
+  --purple:#7a8090;--purple-bg:rgba(122,128,144,0.12);--purple-border:rgba(122,128,144,0.28);
+  --red:#c07878;--red-bg:rgba(192,120,120,0.10);
+}
+/* Light variants for each theme */
+body.light.theme-ocean{--bg:#e8f4f4;--bg2:#ffffff;--bg3:#d6eeee;--bg4:#c0e4e4;--border:rgba(45,139,139,.12);--border2:rgba(45,139,139,.22);--text:#0a2020;--text2:#2d6868;--text3:#5a8888;--accent:#1a7070;--accent-bg:rgba(26,112,112,0.10);}
+body.light.theme-forest{--bg:#edf2e8;--bg2:#ffffff;--bg3:#dde8d4;--bg4:#ccdcc0;--border:rgba(45,74,43,.12);--border2:rgba(45,74,43,.22);--text:#0e1a0d;--text2:#2d4a2b;--text3:#5a7048;--accent:#2d4a2b;--accent-bg:rgba(45,74,43,0.10);}
+body.light.theme-golden{--bg:#fdf6e3;--bg2:#ffffff;--bg3:#f8ecc8;--bg4:#f2e0a8;--border:rgba(74,64,58,.12);--border2:rgba(74,64,58,.22);--text:#2a1c0c;--text2:#4a403a;--text3:#8a7258;--accent:#c1666b;--accent-bg:rgba(193,102,107,0.10);}
+body.light.theme-galaxy{--bg:#f0eef8;--bg2:#ffffff;--bg3:#e2ddf0;--bg4:#d0c8e8;--border:rgba(43,30,62,.12);--border2:rgba(43,30,62,.22);--text:#100a1e;--text2:#2b1e3e;--text3:#6b5c8a;--accent:#4a4e8f;--accent-bg:rgba(74,78,143,0.10);}
+body.light.theme-minimal{--bg:#f4f6f8;--bg2:#ffffff;--bg3:#e8ecf0;--bg4:#d8dfe6;--border:rgba(54,69,79,.12);--border2:rgba(54,69,79,.22);--text:#1a2028;--text2:#36454f;--text3:#708090;--accent:#36454f;--accent-bg:rgba(54,69,79,0.10);}
+/* Theme card selector */
+.theme-card{border:2px solid var(--border2);border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.theme-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.theme-card.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.theme-card .tc-check{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--accent);display:none;align-items:center;justify-content:center}
+.theme-card.selected .tc-check{display:flex}
+.theme-swatch{display:flex;gap:4px;margin-bottom:8px;height:28px;border-radius:6px;overflow:hidden}
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 20px 10px;margin-bottom:18px}
+.chart-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.chart-sub{font-size:11px;color:var(--text3);margin-bottom:16px}
+.chart-toggle{display:flex;gap:6px;margin-bottom:16px}
+.chart-tab{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);transition:all var(--tr)}
+.chart-tab.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
+.chart-area{width:100%;overflow-x:auto;overflow-y:visible;padding-bottom:8px;padding-top:20px}
+.chart-bars{display:flex;gap:8px;align-items:flex-end;min-height:140px;padding:0 4px;overflow:visible}
+.chart-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:44px;max-width:72px;position:relative}
+.chart-val{font-size:10px;font-family:var(--mono);color:var(--text2);white-space:nowrap;min-height:14px;text-align:center}
+.chart-bar-wrap{width:100%;position:relative;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer}
+/* Layered bars: total → realizado → nf emitida → pago */
+.chart-bar-layer{width:100%;position:absolute;bottom:0;border-radius:5px 5px 0 0;transition:height .4s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.chart-bar-layer.total{opacity:.45}
+.chart-bar-layer.realizado{opacity:.72}
+.chart-bar-layer.nf{opacity:.86}
+.chart-bar-layer.pago{opacity:1}
+.chart-bar-hitzone{width:100%;height:100%;position:absolute;top:0;left:0}
+.chart-tooltip{position:fixed;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:11px;color:var(--text);pointer-events:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);display:none;line-height:1.8;min-width:160px}
+.chart-tip-row{display:flex;align-items:center;gap:8px}
+.chart-tip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chart-tip-label{color:var(--text3);flex:1}
+.chart-tip-val{font-family:var(--mono);font-weight:600;color:var(--text)}
+.chart-label{font-size:10px;color:var(--text3);text-align:center;white-space:nowrap}
+.tut-steps{display:flex;flex-direction:column;gap:16px}
+.tut-step{display:flex;gap:14px;align-items:flex-start}
+.tut-num{width:26px;height:26px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.tut-body{flex:1;min-width:0}
+.tut-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.tut-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.tut-desc code{background:var(--bg3);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--accent)}
+.tut-code-wrap{position:relative;margin-top:8px}
+.tut-code{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px;font-family:var(--mono);font-size:11px;color:var(--text2);overflow-x:auto;white-space:pre;line-height:1.6;max-height:180px;overflow-y:auto;margin:0}
+.tut-copy-btn{position:absolute;top:6px;right:6px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--text2);font-size:11px;padding:3px 10px;cursor:pointer;font-family:var(--font);z-index:1}
+.tut-copy-btn:hover{background:var(--accent-bg);color:var(--accent)}

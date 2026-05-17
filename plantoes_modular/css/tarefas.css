@@ -1,0 +1,13 @@
+/* Spotify Widget */
+.ex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:start}
+.ex-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;transition:background var(--tr),border-color var(--tr);position:relative}
+.ex-card:hover{background:var(--bg3);border-color:var(--border2)}
+.ex-card-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.ex-grupo-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+.ex-nome{font-size:13px;font-weight:600;color:var(--text);font-family:var(--font);flex:1}
+.ex-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ex-stat{background:var(--bg3);border-radius:var(--radius);padding:7px 8px;text-align:center}
+.ex-stat-val{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text)}
+.ex-stat-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;font-family:var(--font)}
+.ex-obs{font-size:11px;color:var(--text3);margin-top:8px;font-family:var(--font)}
+.ex-group-header{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;padding:14px 2px 8px;border-bottom:1px solid var(--border);margin-bottom:10px;grid-column:1/-1}

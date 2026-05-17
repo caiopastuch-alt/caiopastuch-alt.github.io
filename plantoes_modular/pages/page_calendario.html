@@ -1,0 +1,19 @@
+<!-- Calendário -->
+<div class="page" id="page-calendario">
+  <div class="topbar">
+    <div class="topbar-left"><h2 id="cal-title">Calendário</h2><p id="cal-sub">Visão mensal dos plantões e eventos</p></div>
+    <div class="topbar-actions">
+      <div style="display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:3px">
+        <button class="btn btn-sm" id="cal-tab-mes" onclick="setCalView('mes')" style="padding:4px 12px;font-size:12px;border-radius:7px;background:var(--accent);color:#fff;border:none">Mês</button>
+        <button class="btn btn-sm" id="cal-tab-sem" onclick="setCalView('semana')" style="padding:4px 12px;font-size:12px;border-radius:7px;background:transparent;color:var(--text2);border:none">Semana</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="calNav(-1)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>Anterior</button>
+      <button class="btn btn-ghost btn-sm" onclick="calNavToday()">Hoje</button>
+      <button class="btn btn-ghost btn-sm" onclick="calNav(1)">Próximo<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg></button>
+      <button class="btn btn-ghost btn-sm" onclick="openEventoModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Novo evento</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Novo plantão</button>
+    </div>
+  </div>
+  <div id="cal-grid"></div>
+</div>
+

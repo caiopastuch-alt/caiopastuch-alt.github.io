@@ -1,0 +1,22 @@
+/* Treino atual */
+.ficha-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px}
+.ficha-title{font-size:15px;font-weight:600;font-family:var(--font);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sessao-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;font-family:var(--font)}
+.sessao-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--tr)}
+.sessao-check.done{background:var(--green);border-color:var(--green)}
+.compact-mode .cell-view,.compact-mode .cell-ro{padding:4px 8px;min-height:26px;font-size:12px}
+.compact-mode thead th{padding:5px 8px}
+.compact-mode .tipo{font-size:9px;padding:1px 4px}
+.compact-mode .status-badge{font-size:10px;padding:1px 5px}
+/* Global search overlay */
+.global-search-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:10000;display:flex;align-items:flex-start;justify-content:center;padding-top:80px;backdrop-filter:blur(4px)}
+.global-search-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:560px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.4);overflow:hidden}
+.global-search-input{width:100%;background:transparent;border:none;padding:16px 20px;font-size:16px;color:var(--text);font-family:var(--font);outline:none;border-bottom:1px solid var(--border)}
+.global-search-results{max-height:400px;overflow-y:auto}
+.gs-result{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;transition:background var(--tr);border-bottom:1px solid var(--border)}
+.gs-result:hover,.gs-result.selected{background:var(--bg3)}
+.gs-result-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.gs-result-body{flex:1;min-width:0}
+.gs-result-title{font-size:13px;font-weight:500;color:var(--text)}
+.gs-result-sub{font-size:11px;color:var(--text3)}
+.gs-result-tag{font-size:10px;padding:2px 7px;border-radius:8px;background:var(--bg4);color:var(--text3);flex-shrink:0}

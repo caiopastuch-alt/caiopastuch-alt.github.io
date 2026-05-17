@@ -1,0 +1,360 @@
+<!-- ── Materiais ── -->
+<div class="page" id="page-materiais">
+  <div class="topbar">
+    <div class="topbar-left"><h2 style="font-family:var(--font)">Materiais</h2><p id="mat-topbar-sub" style="font-family:var(--font)">Base de conhecimento médico</p></div>
+    <div class="topbar-actions" style="gap:6px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" id="mat-btn-index" onclick="matGoIndex()" style="font-family:var(--font)">Índice</button>
+      <button class="btn btn-ghost btn-sm" id="mat-btn-files" onclick="matGoFiles()" style="font-family:var(--font)">📁 Arquivos</button>
+      <button class="btn btn-ghost btn-sm" onclick="matShowUpload()" style="font-family:var(--font)">+ Importar JSON</button>
+      <button class="btn btn-ghost btn-sm" onclick="matShowSources()" id="mat-sources-btn" style="font-family:var(--font)">📚 Fontes (0)</button>
+      <button class="btn btn-primary btn-sm" onclick="matShowConverter()" style="font-family:var(--font)">⚡ Converter PDF</button>
+    </div>
+  </div>
+
+  <!-- Converter panel -->
+  <div id="mat-converter" style="display:none;margin-bottom:20px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <button onclick="matCloseConverter()" class="btn btn-ghost btn-sm" style="font-family:var(--font)">← Voltar ao índice</button>
+      <span style="font-size:14px;font-weight:700;font-family:var(--font)">⚡ Conversor de PDF</span>
+    </div>
+    <div id="mat-conv-banner" style="background:rgba(79,142,247,.07);border:1px solid rgba(79,142,247,.2);border-radius:var(--radius-lg);padding:10px 14px;margin-bottom:12px;font-size:11px;font-family:var(--font);color:var(--text2);line-height:1.6">
+      <strong style="color:var(--accent)">ℹ️ Como funciona:</strong> o PDF é enviado para a IA que extrai e organiza todos os tópicos clínicos.
+      Requer a <strong>Netlify Function</strong> configurada com <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">ANTHROPIC_API_KEY</code>.
+      Sem ela, use <strong>"+ Importar JSON"</strong> com um JSON gerado no Claude.ai.
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px">
+      <div id="mat-conv-zone" style="border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:28px;text-align:center;cursor:pointer;transition:border-color var(--tr),background var(--tr)"
+        onclick="document.getElementById('mat-conv-file').click()"
+        ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='rgba(79,142,247,.04)'"
+        ondragleave="this.style.borderColor='var(--border2)';this.style.background='transparent'"
+        ondrop="event.preventDefault();this.style.borderColor='var(--border2)';this.style.background='transparent';matConvHandleFile(event.dataTransfer.files[0])">
+        <div style="font-size:36px;margin-bottom:8px">📄</div>
+        <div style="font-size:14px;font-weight:600;font-family:var(--font);margin-bottom:4px">Arraste o PDF aqui ou clique para selecionar</div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--font)">Qualquer tamanho · arquivos grandes divididos automaticamente</div>
+        <input type="file" id="mat-conv-file" accept=".pdf" style="display:none" onchange="matConvHandleFile(this.files[0])">
+      </div>
+      <div id="mat-conv-info" style="display:none;margin-top:14px;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:600;font-family:var(--font);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="mat-conv-name"></span>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--font);flex-shrink:0" id="mat-conv-size"></span>
+        <button onclick="matConvReset()" class="btn btn-ghost btn-sm" style="font-family:var(--font);flex-shrink:0">Trocar</button>
+        <button onclick="matConvProcess()" id="mat-conv-btn" class="btn btn-primary btn-sm" style="font-family:var(--font);flex-shrink:0">🧠 Processar PDF</button>
+      </div>
+      <div id="mat-conv-progress" style="display:none;margin-top:14px">
+        <div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:8px">
+          <div id="mat-conv-bar" style="height:100%;background:var(--accent);width:0%;transition:width .4s;border-radius:2px"></div>
+        </div>
+        <div id="mat-conv-step" style="font-size:12px;color:var(--text3);font-family:var(--font)"></div>
+      </div>
+      <div id="mat-conv-log" style="display:none;margin-top:10px;background:var(--bg3);border-radius:var(--radius);padding:10px 12px;font-size:11px;font-family:var(--mono);color:var(--text2);max-height:180px;overflow-y:auto;line-height:1.8"></div>
+    </div>
+  </div>
+
+  <!-- Search results -->
+  <div id="mat-search-results" style="display:none;margin-bottom:16px"></div>
+
+  <!-- Topic detail panel -->
+  <div id="mat-topic-panel" style="display:none;margin-bottom:20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button onclick="matClosePanel()" class="btn btn-ghost btn-sm" style="font-family:var(--font)">← Voltar</button>
+      <span id="mat-panel-title" style="font-size:15px;font-weight:700;font-family:var(--font)"></span>
+      <span id="mat-panel-source" style="font-size:11px;color:var(--text3);font-family:var(--font);margin-left:auto"></span>
+      <button id="mat-panel-edit-btn" onclick="matOpenEditTopic()" class="btn btn-ghost btn-sm" style="font-family:var(--font)">✏ Editar</button>
+    </div>
+    <div id="mat-panel-content"></div>
+    <!-- Notes section -->
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-family:var(--font);margin-bottom:6px">📝 Minhas anotações</div>
+      <textarea id="mat-panel-notes" placeholder="Adicione suas anotações pessoais sobre este tópico…"
+        style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:13px;padding:10px 12px;resize:vertical;min-height:80px;outline:none;line-height:1.6;box-sizing:border-box"
+        oninput="matSaveNotes(this.value)"></textarea>
+    </div>
+  </div>
+
+  <!-- Edit topic modal inline -->
+  <div id="mat-edit-panel" style="display:none;margin-bottom:20px;background:var(--bg2);border:2px solid var(--accent);border-radius:var(--radius-lg);padding:20px 24px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <button onclick="matCloseEdit()" class="btn btn-ghost btn-sm" style="font-family:var(--font)">← Cancelar</button>
+      <span style="font-size:14px;font-weight:700;font-family:var(--font)">✏ Editar Tópico</span>
+      <button onclick="matSaveEdit()" class="btn btn-primary btn-sm" style="margin-left:auto;font-family:var(--font)">💾 Salvar</button>
+    </div>
+    <div id="mat-edit-fields"></div>
+  </div>
+
+  <!-- Files panel -->
+  <div id="mat-files-panel" style="display:none;margin-bottom:20px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <button onclick="matCloseFiles()" class="btn btn-ghost btn-sm" style="font-family:var(--font)">← Voltar</button>
+      <span style="font-size:14px;font-weight:700;font-family:var(--font)">📁 Arquivos</span>
+      <button onclick="document.getElementById('mat-file-upload-input').click()" class="btn btn-primary btn-sm" style="margin-left:auto;font-family:var(--font)">+ Upload de arquivo</button>
+      <input type="file" id="mat-file-upload-input" multiple style="display:none" onchange="matHandleFileUpload(this.files)">
+    </div>
+    <div id="mat-files-list" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;min-height:120px"></div>
+  </div>
+
+  <!-- Group manager panel -->
+  <div id="mat-group-manager" style="display:none;margin-bottom:20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <span style="font-size:14px;font-weight:700;font-family:var(--font)">🗂 Organizar grupos</span>
+      <button onclick="matCloseGroupManager()" class="btn btn-ghost btn-sm" style="margin-left:auto;font-family:var(--font)">Fechar</button>
+    </div>
+    <div id="mat-group-list"></div>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <input id="mat-new-group-name" type="text" placeholder="Nome do novo grupo…"
+        style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:13px;padding:7px 12px;outline:none">
+      <button onclick="matAddGroup()" class="btn btn-ghost btn-sm" style="font-family:var(--font)">+ Criar grupo</button>
+    </div>
+  </div>
+
+  <!-- Index -->
+  <div id="mat-index-content">
+    <div style="text-align:center;padding:60px 20px;color:var(--text3);font-family:var(--font)">
+      <div style="font-size:48px;margin-bottom:12px">📭</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">Nenhuma fonte adicionada</div>
+      <div style="font-size:12px">Converta um PDF em JSON no conversor e importe aqui</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Importar JSON -->
+<div class="modal-overlay" id="mat-upload-modal" onclick="if(event.target===this)finCloseModal('mat-upload-modal')">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div><h3 style="font-family:var(--font)">Importar JSON</h3>
+        <p style="font-size:12px;color:var(--text3);font-family:var(--font)">Gere o JSON com o conversor no Claude.ai e importe aqui</p></div>
+      <button class="modal-close" onclick="finCloseModal('mat-upload-modal')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div style="border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:30px;text-align:center;cursor:pointer;transition:border-color var(--tr)"
+      onclick="document.getElementById('mat-json-input').click()"
+      onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border2)'">
+      <div style="font-size:32px;margin-bottom:8px">📂</div>
+      <div style="font-size:13px;font-weight:600;font-family:var(--font);margin-bottom:4px">Selecionar arquivo JSON</div>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--font)">Gerado pelo conversor de PDF do Claude.ai</div>
+      <input type="file" id="mat-json-input" accept=".json" style="display:none" onchange="matHandleJson(this.files[0])">
+    </div>
+    <div id="mat-upload-status" style="display:none;margin-top:12px;padding:10px;background:var(--bg3);border-radius:var(--radius);font-size:12px;font-family:var(--font)"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="finCloseModal('mat-upload-modal')" style="font-family:var(--font)">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Fontes -->
+<div class="modal-overlay" id="mat-sources-modal" onclick="if(event.target===this)finCloseModal('mat-sources-modal')">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div><h3 style="font-family:var(--font)">Fontes de conhecimento</h3></div>
+      <button class="modal-close" onclick="finCloseModal('mat-sources-modal')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div id="mat-sources-list" style="max-height:400px;overflow-y:auto"></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="finCloseModal('mat-sources-modal')" style="font-family:var(--font)">Fechar</button></div>
+  </div>
+</div>
+
+
+<div id="cronometro-overlay" style="display:none;position:fixed;top:16px;right:16px;z-index:9990;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.4);min-width:200px;font-family:var(--font)">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--green)">▶ Treino em andamento</span>
+    <button onclick="cronometroStop()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;line-height:1">×</button>
+  </div>
+  <div id="crono-display" style="font-family:var(--mono);font-size:32px;font-weight:700;color:var(--text);text-align:center;letter-spacing:2px;margin-bottom:8px">00:00:00</div>
+  <div id="crono-ficha-name" style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:10px"></div>
+  <div style="display:flex;gap:6px;justify-content:center">
+    <button id="crono-pause-btn" onclick="cronometroTogglePause()" class="btn btn-ghost btn-sm" style="font-size:11px">⏸ Pausar</button>
+    <button onclick="cronometroFinish()" class="btn btn-primary btn-sm" style="font-size:11px;background:var(--green)">✓ Finalizar</button>
+  </div>
+</div>
+
+</main>
+
+<!-- Modal: Histórico de carga -->
+<div class="modal-overlay" id="carga-hist-overlay" onclick="if(event.target===this)closeCargaHist()">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div><h3 id="carga-hist-title" style="font-family:var(--font)">Histórico de carga</h3><p id="carga-hist-sub" style="font-size:12px;color:var(--text3);font-family:var(--font)"></p></div>
+      <button class="modal-close" onclick="closeCargaHist()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div style="padding:0 0 8px">
+      <canvas id="carga-hist-chart" height="160" style="width:100%"></canvas>
+    </div>
+    <div id="carga-hist-list" style="max-height:180px;overflow-y:auto;padding:0 4px 8px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="clearCargaHist(window._cargaHistId)" style="color:var(--red);font-family:var(--font)">Limpar histórico</button>
+      <button class="btn btn-ghost" onclick="closeCargaHist()" style="font-family:var(--font)">Fechar</button>
+    </div>
+  </div>
+</div>
+</main>
+<div class="global-search-overlay" id="global-search-overlay" style="display:none" onclick="if(event.target===this)closeGlobalSearch()">
+  <div class="global-search-box">
+    <input class="global-search-input" id="global-search-input" placeholder="Buscar plantões, tarefas, eventos… (↑↓ navegar, Enter abrir, Esc fechar)" oninput="globalSearchRender()" onkeydown="globalSearchKey(event)">
+    <div class="global-search-results" id="global-search-results">
+      <div style="padding:14px 20px;font-size:12px;color:var(--text3);font-family:var(--font)">Digite para buscar em tudo…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Keyboard Shortcuts Hint (? key) -->
+<div class="kb-hint" id="kb-hint">
+  <span class="kb-key">I</span><span>Tela Inicial</span>
+  <span class="kb-key">P</span><span>Plantões</span>
+  <span class="kb-key">C</span><span>Calendário</span>
+  <span class="kb-key">T</span><span>Tarefas</span>
+  <span class="kb-key">F</span><span>Finanças</span>
+  <span class="kb-key">N</span><span>Novo plantão</span>
+  <span class="kb-key">/</span><span>Busca global</span>
+  <span class="kb-key">?</span><span>Atalhos</span>
+  <span class="kb-key">Alt+C</span><span>Compacto</span>
+</div>
+</main>
+
+<!-- Modal: Novo plantão -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header"><div><h3>Novo plantão</h3><p>Preencha os dados e salve</p></div><button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
+    <div class="form-grid"><div class="field"><label>Mês</label><select id="f-mes" onchange="syncModalMes()"></select></div><div class="field"><label>Data</label><input type="date" id="f-data" onchange="onModalDataChange()"></div></div>
+    <div class="form-grid"><div class="field"><label>Início</label><input type="time" step="60" id="f-ini" oninput="calcModalPreview()"></div><div class="field"><label>Fim</label><input type="time" step="60" id="f-fim" oninput="calcModalPreview()"></div></div>
+    <div class="preview-box" id="preview-box"><span style="color:var(--text3);font-size:12px">Preencha início e fim para ver o resumo</span></div>
+    <div class="form-grid"><div class="field"><label>Local</label><select id="f-local"></select></div><div class="field"><label>Tipo</label><select id="f-tipo" onchange="calcModalPreview()"></select></div></div>
+    <div class="form-grid"><div class="field"><label>Status</label><select id="f-status"></select></div><div class="field"><label>Observação</label><input type="text" id="f-obs" placeholder="Feriado, atraso, NF…" oninput="calcModalPreview()"></div></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="salvar()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Salvar plantão</button></div>
+  </div>
+</div>
+
+<!-- Modal: Configurações -->
+<div class="modal-overlay" id="settings-overlay" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <div class="modal-header"><div><h3>Configurações</h3><p>Taxas, tipos, locais e status</p></div><button class="modal-close" onclick="closeSettings()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div>
+    <div class="settings-section">
+      <h4>🎨 Tema visual</h4>
+      <div id="theme-selector" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:6px"></div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--font)">Modo de brilho:</span>
+        <button onclick="applyThemeMode('dark')" id="mode-dark-btn" class="btn btn-ghost btn-sm" style="font-family:var(--font);font-size:11px">🌙 Escuro</button>
+        <button onclick="applyThemeMode('light')" id="mode-light-btn" class="btn btn-ghost btn-sm" style="font-family:var(--font);font-size:11px">☀️ Claro</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h4>Taxa por hora e bônus por tipo</h4>
+      <table class="rates-tbl"><thead><tr><th>Tipo</th><th>Taxa base</th><th>Bônus fim de semana / feriado</th></tr></thead><tbody id="rates-tbody"></tbody></table>
+      <div class="note">O bônus é adicionado à taxa base nos plantões de sábado, domingo ou com "Feriado" na observação. Configure 0 para tipos sem bônus.</div>
+    </div>
+    <div class="settings-section"><h4>Tipos de plantão</h4><div class="tag-list" id="cfg-tipos"></div><div class="tag-add-row"><input type="text" id="cfg-tipo-new" placeholder="Ex: UTI, PA-noturno…" onkeydown="if(event.key==='Enter')addTag('tipos','cfg-tipo-new')"><button onclick="addTag('tipos','cfg-tipo-new')">+ Adicionar</button></div></div>
+    <div class="settings-section"><h4>Locais</h4><div class="tag-list" id="cfg-locais"></div><div class="tag-add-row"><input type="text" id="cfg-local-new" placeholder="Ex: UPA Nova Cidade…" onkeydown="if(event.key==='Enter')addTag('locais','cfg-local-new')"><button onclick="addTag('locais','cfg-local-new')">+ Adicionar</button></div></div>
+    <div class="settings-section"><h4>Status</h4><div class="tag-list" id="cfg-statuses"></div><div class="tag-add-row"><input type="text" id="cfg-status-new" placeholder="Ex: Auditado…" onkeydown="if(event.key==='Enter')addTag('statuses','cfg-status-new')"><button onclick="addTag('statuses','cfg-status-new')">+ Adicionar</button></div></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeSettings()">Cancelar</button><button class="btn btn-primary" onclick="saveSettings()">Salvar configurações</button></div>
+  </div>
+</div>
+
+<!-- ── Modal: Tutorial Google Agenda ── -->
+<div class="modal-overlay" id="gcal-tutorial-overlay" onclick="if(event.target===this)closeGcalTutorial()">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <div><h3>🗓 Sincronizar com Google Agenda</h3><p>Siga o passo a passo abaixo para ligar seus plantões à sua agenda</p></div>
+      <button class="modal-close" onclick="closeGcalTutorial()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+
+    <div class="tut-steps">
+      <div class="tut-step">
+        <div class="tut-num">1</div>
+        <div class="tut-body">
+          <div class="tut-title">Abra o Google Apps Script</div>
+          <div class="tut-desc">Acesse <a href="https://script.google.com" target="_blank" style="color:var(--accent)">script.google.com</a> com a conta Google que usa no dia a dia. Clique em <strong>Novo projeto</strong>.</div>
+        </div>
+      </div>
+      <div class="tut-step">
+        <div class="tut-num">2</div>
+        <div class="tut-body">
+          <div class="tut-title">Cole o script abaixo</div>
+          <div class="tut-desc">Apague o código que aparecer e cole o script gerado para o seu perfil:</div>
+          <div class="tut-code-wrap">
+            <button class="tut-copy-btn" onclick="copyScript()">Copiar</button>
+            <pre id="tut-script-code" class="tut-code"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="tut-step">
+        <div class="tut-num">3</div>
+        <div class="tut-body">
+          <div class="tut-title">Execute <code>configurarGatilho</code></div>
+          <div class="tut-desc">No menu suspenso de funções, selecione <strong>configurarGatilho</strong> e clique em ▶ Executar. Autorize o acesso quando o Google pedir. Isso ativa a sincronização automática a cada hora.</div>
+        </div>
+      </div>
+      <div class="tut-step">
+        <div class="tut-num">4</div>
+        <div class="tut-body">
+          <div class="tut-title">Execute <code>sincronizacaoCompleta</code></div>
+          <div class="tut-desc">Selecione <strong>sincronizacaoCompleta</strong> e clique em ▶ Executar. Todos os seus plantões aparecerão na agenda agora mesmo. Daqui em diante, a sincronização é automática a cada hora.</div>
+        </div>
+      </div>
+      <div class="tut-step">
+        <div class="tut-num">✓</div>
+        <div class="tut-body">
+          <div class="tut-title">Pronto!</div>
+          <div class="tut-desc">Cada plantão aparece na agenda com horário exato, local, tipo, duração e valor estimado. Novos plantões adicionados aqui são sincronizados automaticamente em até 1 hora.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Gerenciar Perfis (só Caio) ── -->
+<div class="modal-overlay" id="profiles-overlay" onclick="if(event.target===this)closeManageProfiles()">
+  <div class="modal">
+    <div class="modal-header">
+      <div><h3>Gerenciar perfis</h3><p>Adicione ou remova perfis de usuários</p></div>
+      <button class="modal-close" onclick="closeManageProfiles()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div id="profiles-list" style="margin-bottom:16px"></div>
+    <div style="border-top:1px solid var(--border);padding-top:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Adicionar novo perfil</div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="new-profile-input" placeholder="Nome do perfil…" maxlength="20" autocomplete="off"
+          style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:13px;padding:8px 12px"
+          onkeydown="if(event.key==='Enter')addProfileFromModal()">
+        <button class="btn btn-primary btn-sm" onclick="addProfileFromModal()">+ Adicionar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Editar plantão (calendário) ── -->
+<div class="modal-overlay" id="cal-edit-overlay" onclick="if(event.target===this)closeCalEdit()">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div>
+        <h3 id="cal-edit-title">Plantão</h3>
+        <p id="cal-edit-sub">Edite os campos abaixo</p>
+      </div>
+      <button class="modal-close" onclick="closeCalEdit()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Data</label><input type="text" id="ce-data" placeholder="16/03 ou 16 mar"></div>
+      <div class="field"><label>Status</label><select id="ce-status"></select></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Início</label><input type="time" step="60" id="ce-ini"></div>
+      <div class="field"><label>Fim</label><input type="time" step="60" id="ce-fim"></div>
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Local</label><select id="ce-local"></select></div>
+      <div class="field"><label>Tipo</label><select id="ce-tipo"></select></div>
+    </div>
+    <div class="form-grid full">
+      <div class="field"><label>Observação</label><input type="text" id="ce-obs" placeholder="Feriado, atraso, NF…"></div>
+    </div>
+    <div id="ce-preview" class="preview-box" style="margin-top:4px"><span style="color:var(--text3);font-size:12px">—</span></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" style="color:var(--red)" onclick="calEditDelete()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Remover
+      </button>
+      <button class="btn btn-ghost" onclick="closeCalEdit()">Cancelar</button>
+      <button class="btn btn-primary" onclick="calEditSave()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="chart-tooltip" id="chart-tooltip"></div>
+<div class="toast" id="toast"></div>
+
